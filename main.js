@@ -23,32 +23,42 @@ async function fetchJson(url) {
 }
 
 async function getDashboardData(query) {
-    console.log(`Caricando la dashboard per la query ${query}`);
-    const destinationsPromise = fetchJson(`https://boolean-spec-frontend.vercel.app/freetestapi/destinations?search=${query}`)
-    console.log(destinationsPromise);
-    const weathersPromise = fetchJson(`https://boolean-spec-frontend.vercel.app/freetestapi/weathers?search=${query}`)
-    console.log(weathersPromise);
-    const airportsPromise = fetchJson(`https://boolean-spec-frontend.vercel.app/freetestapi/airports?search=${query}`)
-    console.log(airportsPromise);
-    const promises = [destinationsPromise, weathersPromise, airportsPromise]
-    const [destinations, weathers, airports] = await Promise.all(promises)
-    return {
-        city: destinations[3].name,
-        country: destinations[3].country,
-        temperature: weathers[3].temperature,
-        weathers: weathers[3].weather_description,
-        airports: airports[3].name
+
+    try {
+        console.log(`Caricando la dashboard per la query ${query}`);
+        const destinationsPromise = fetchJson(`https://boolean-spec-frontend.vercel.app/freetestapi/destinations?search=${query}`)
+        console.log(destinationsPromise);
+        const weathersPromise = fetchJson(`https://boolean-spec-frontend.vercel.app/freetestapi/weathers?search=${query}`)
+        console.log(weathersPromise);
+        const airportsPromise = fetchJson(`https://boolean-spec-frontend.vercel.app/freetestapi/airports?search=${query}`)
+        console.log(airportsPromise);
+        const promises = [destinationsPromise, weathersPromise, airportsPromise]
+        const [destinations, weathers, airports] = await Promise.all(promises)
+        const destination = destinations.find(dest => dest.name.toLowerCase().includes(query.toLowerCase()));
+        const weather = weathers.find(w => w.city.toLowerCase().includes(query.toLowerCase()));
+        const airport = airports.find(a => a.city.toLowerCase().includes(query.toLowerCase()));
+
+        return {
+            city: destination.name,
+            country: destination.country,
+            temperature: weather.temperature,
+            weathers: weather.weather_description,
+            airports: airport.name
+        }
+    } catch (error) {
+        throw new error(`Errore nel recupero dei dati: ${error.message}`)
     }
+
 }
 
 
 
-getDashboardData('london')
+getDashboardData('tokyo')
     .then(data => {
         console.log(`The city ${data.city} is in the country ${data.country}, the temperature is ${data.temperature}°C, the weather is ${data.weathers}, and the main airport is ${data.airports}.`);
     })
     .catch(err => {
-        console.error('Error:', err);
+        console.error('Error:', err.message);
     });
 
 
