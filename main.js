@@ -34,16 +34,14 @@ async function getDashboardData(query) {
         console.log(airportsPromise);
         const promises = [destinationsPromise, weathersPromise, airportsPromise]
         const [destinations, weathers, airports] = await Promise.all(promises)
-        const destination = destinations.find(dest => dest.name.toLowerCase().includes(query.toLowerCase()));
-        const weather = weathers.find(w => w.city.toLowerCase().includes(query.toLowerCase()));
-        const airport = airports.find(a => a.city.toLowerCase().includes(query.toLowerCase()));
+
 
         return {
-            city: destination.name,
-            country: destination.country,
-            temperature: weather.temperature,
-            weathers: weather.weather_description,
-            airports: airport.name
+            city: destinations[0].name,
+            country: destinations[0].country,
+            temperature: weathers[0].temperature,
+            weathers: weathers[0].weather_description,
+            airports: airports[0].name
         }
     } catch (error) {
         throw new error(`Errore nel recupero dei dati: ${error.message}`)
@@ -53,7 +51,7 @@ async function getDashboardData(query) {
 
 
 
-getDashboardData('tokyo')
+getDashboardData('london')
     .then(data => {
         console.log(`The city ${data.city} is in the country ${data.country}, the temperature is ${data.temperature}°C, the weather is ${data.weathers}, and the main airport is ${data.airports}.`);
     })
